@@ -1,0 +1,10 @@
+bin/testReadFile
+bin/testReadPAFile
+build/CMakeCache.txt
+build/CMakeFiles/
+build/G__PHA.cxx
+build/Makefile
+build/cmake_install.cmake
+build/libPHA.rootmap
+build/libPHA_rdict.pcm
+build/libPhotoAna.so
