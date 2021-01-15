@@ -5,6 +5,7 @@
 #include "TGraphErrors.h"
 #include "TAxis.h"
 #include "TMath.h"
+#include "TLegend.h"
 
 //ClassImp(Drawer);
 
@@ -36,9 +37,8 @@ void Drawer::getGraphsPAData(std::vector<std::vector<float>> &data, std::vector<
 }
 
 //________________________________________________________________________________
-TCanvas* Drawer::drawGraphs(std::vector<TGraphErrors*> &graphs)
+TCanvas* Drawer::drawGraphs(std::vector<TGraphErrors*> &graphs, const std::vector<std::string> &nameVec)
 {
-
   float maxY = TMath::MaxElement(graphs.at(0)->GetN(),graphs.at(0)->GetY());
   float minY = TMath::MinElement(graphs.at(0)->GetN(),graphs.at(0)->GetY());
 
@@ -51,29 +51,69 @@ TCanvas* Drawer::drawGraphs(std::vector<TGraphErrors*> &graphs)
 
   TCanvas* canvas = new TCanvas();
 
-  beautify::setStyle();
-
-  beautify::setStyleGraph(graphs.at(0));
-  beautify::setStyleGraph(graphs.at(1));
-  beautify::setStyleGraph(graphs.at(2));
-  beautify::setStyleGraph(graphs.at(3));
-
-  graphs.at(0)->SetMarkerStyle(20);
-  graphs.at(1)->SetMarkerStyle(20);
-  graphs.at(2)->SetMarkerStyle(20);
-  graphs.at(3)->SetMarkerStyle(20);
-
-  graphs.at(0)->SetMarkerColor(kYellow+1);
-  graphs.at(1)->SetMarkerColor(kBlue);
-  graphs.at(2)->SetMarkerColor(kRed);
-  graphs.at(3)->SetMarkerColor(kGreen);
+  canvas->SetGrid();
 
   graphs.at(0)->GetYaxis()->SetRangeUser(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
 
   graphs.at(0)->Draw("APEZ");
-  graphs.at(1)->Draw("P same");
-  graphs.at(2)->Draw("P same");
-  graphs.at(3)->Draw("P same");
+
+  for (auto &graph : graphs) {
+    graph->Draw("P same");
+  }
+
+  if (nameVec.size() > 0) { this->makeLegend(graphs, nameVec)->Draw("same"); }
 
   return canvas;
+}
+
+
+//________________________________________________________________________________
+void Drawer::setAxisLabels(std::vector<TGraphErrors*> &graphs, std::string xName, std::string yName)
+{
+  for (auto &graph : graphs) {
+    graph->GetXaxis()->SetTitle(xName.c_str());
+    graph->GetYaxis()->SetTitle(yName.c_str());
+  }
+
+  return;
+}
+
+
+//________________________________________________________________________________
+void Drawer::setBeautifulStyle(std::vector<TGraphErrors*> &graphs)
+{
+  for (auto &graph : graphs) {
+    beautify::setStyleGraph(graph);
+  }
+
+  return;
+}
+
+
+//________________________________________________________________________________
+void Drawer::setDefaultMarker(std::vector<TGraphErrors*> &graphs)
+{
+  for (int i = 0; i < graphs.size(); i++) {
+    graphs.at(i)->SetMarkerStyle(DEFAULTMARKERSTYLE);
+    graphs.at(i)->SetMarkerColor(beautify::colors[i]);
+  }
+
+  return;
+}
+
+
+//________________________________________________________________________________
+TLegend* Drawer::makeLegend (std::vector<TGraphErrors*> &graphs, const std::vector<std::string> &nameVec)
+{
+  if (graphs.size() != nameVec.size()) {
+    printf("Number of graphs and names need to be equal!\n");
+    exit(1);
+  }
+
+  TLegend* legend = new TLegend(0.8,0.775,0.95,0.925);
+  for (int i = 0; i < graphs.size(); i++) {
+    legend->AddEntry(graphs.at(i), nameVec.at(i).c_str(),"p");
+  }
+
+  return legend;
 }

@@ -1,5 +1,5 @@
 bin/testReadFile
-bin/testReadPAFile
+bin/plotPAFile
 build/CMakeCache.txt
 build/CMakeFiles/
 build/G__PHA.cxx

@@ -1,11 +1,29 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include "TColor.h"
+
 class TH1F;
 class TGraphErrors;
 
+
+
 namespace beautify
 {
+
+  static const std::vector<short> colors {kYellow+2,
+                                          kBlue,
+                                          kRed,
+                                          kGreen,
+                                          kCyan,
+                                          kMagenta,
+                                          kOrange,
+                                          kSpring,
+                                          kTeal,
+                                          kAzure,
+                                          kViolet,
+                                          kPink};
+
   void setStyle();
 
   void setStyleHisto(TH1F* histo);

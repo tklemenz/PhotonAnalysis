@@ -28,13 +28,13 @@ target_link_libraries(PhotoAna ${ROOT_LIBRARIES})
 # Create main programs using the library
 
 set(EXE_SRCS
+   macros/plotPAFile.C
    macros/testReadFile.C
-   macros/testReadPAFile.C
    )
 
 set(EXE_NAMES
+   plotPAFile
    testReadFile
-   testReadPAFile
    )
 
 list(LENGTH EXE_SRCS count)

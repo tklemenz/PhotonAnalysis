@@ -39,7 +39,7 @@ void setStyle()
   st->SetTitleSize(0.055,"XYZ");
   st->SetTitleOffset(1.1,"XZ");
   st->SetTitleOffset(0.9,"Y");   //mine
-  st->SetNdivisions(505, "Y");
+  //st->SetNdivisions(505, "Y");
   st->SetStatFont(nimTPCFont);
   st->SetOptTitle(1);
   st->SetTitleAlign(13);
