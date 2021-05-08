@@ -13,12 +13,14 @@ set(SRCS
    src/Functions.cxx
    src/Drawer.cxx
    src/Utility.cxx
+   src/DrawSlave.cxx
    )
 
 set(HEADERS
    include/Functions.h
    include/Drawer.h
    include/Utility.h
+   include/DrawSlave.h
    )
 
 ROOT_GENERATE_DICTIONARY(G__PHA ${HEADERS} LINKDEF include/LinkDef.h)
@@ -29,11 +31,13 @@ target_link_libraries(PhotoAna ${ROOT_LIBRARIES})
 
 set(EXE_SRCS
    macros/plotPAFile.C
+   macros/plotPAFile6chReadout.C
    macros/testReadFile.C
    )
 
 set(EXE_NAMES
    plotPAFile
+   plotPAFile6chReadout
    testReadFile
    )
 

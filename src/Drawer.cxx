@@ -19,25 +19,31 @@ Drawer::Drawer(const Drawer &drawer)
 //________________________________________________________________________________
 void Drawer::getGraphsPAData(std::vector<std::vector<float>> &data, std::vector<TGraphErrors*> &graphs)
 {
-  if (graphs.size() != 4) {
+  /*if (graphs.size() != 4) {
     printf("you need 4 graphs in the vector!\n");
     return;
-  }
+  }*/
 
   float refTime = data.at(0).at(0);    /// time is mm/dd/hh/mm/ss.sss format --> convert to seconds!!
 
-  for (int i=0; i<data.at(0).size(); i++) {
+  /*for (int i=0; i<data.at(0).size(); i++) {
     graphs.at(0)->SetPoint(i,data.at(0).at(i)-refTime,data.at(1).at(i));
     graphs.at(1)->SetPoint(i,data.at(0).at(i)-refTime,data.at(2).at(i));
     graphs.at(2)->SetPoint(i,data.at(0).at(i)-refTime,data.at(3).at(i));
     graphs.at(3)->SetPoint(i,data.at(0).at(i)-refTime,data.at(4).at(i));
+  }*/
+
+  for (int i=0; i<data.at(0).size(); i++) {
+    for (int j=0; j<graphs.size(); j++) {
+      graphs.at(j)->SetPoint(i,(data.at(0).at(i)-refTime)/3600,data.at(j+1).at(i));
+    }
   }
 
   return;
 }
 
 //________________________________________________________________________________
-TCanvas* Drawer::drawGraphs(std::vector<TGraphErrors*> &graphs, const std::vector<std::string> &nameVec)
+TCanvas* Drawer::drawGraphs(std::vector<TGraphErrors*> &graphs, const std::vector<std::string> &nameVec, const std::string title)
 {
   float maxY = TMath::MaxElement(graphs.at(0)->GetN(),graphs.at(0)->GetY());
   float minY = TMath::MinElement(graphs.at(0)->GetN(),graphs.at(0)->GetY());
@@ -61,18 +67,19 @@ TCanvas* Drawer::drawGraphs(std::vector<TGraphErrors*> &graphs, const std::vecto
     graph->Draw("P same");
   }
 
-  if (nameVec.size() > 0) { this->makeLegend(graphs, nameVec)->Draw("same"); }
+  if (nameVec.size() > 0) { this->makeLegend(graphs, nameVec, title)->Draw("same"); }
 
   return canvas;
 }
 
 
 //________________________________________________________________________________
-void Drawer::setAxisLabels(std::vector<TGraphErrors*> &graphs, std::string xName, std::string yName)
+void Drawer::setAxisLabels(std::vector<TGraphErrors*> &graphs, std::string xName, std::string yName, std::string title)
 {
   for (auto &graph : graphs) {
     graph->GetXaxis()->SetTitle(xName.c_str());
     graph->GetYaxis()->SetTitle(yName.c_str());
+    if(title != std::string("")) { graph->SetTitle(title.c_str()); }
   }
 
   return;
@@ -103,7 +110,7 @@ void Drawer::setDefaultMarker(std::vector<TGraphErrors*> &graphs)
 
 
 //________________________________________________________________________________
-TLegend* Drawer::makeLegend (std::vector<TGraphErrors*> &graphs, const std::vector<std::string> &nameVec)
+TLegend* Drawer::makeLegend (std::vector<TGraphErrors*> &graphs, const std::vector<std::string> &nameVec, const std::string title)
 {
   if (graphs.size() != nameVec.size()) {
     printf("Number of graphs and names need to be equal!\n");
@@ -111,6 +118,9 @@ TLegend* Drawer::makeLegend (std::vector<TGraphErrors*> &graphs, const std::vect
   }
 
   TLegend* legend = new TLegend(0.8,0.775,0.95,0.925);
+
+  if (title != std::string("")) { legend->SetHeader(title.c_str(),"C"); }
+
   for (int i = 0; i < graphs.size(); i++) {
     legend->AddEntry(graphs.at(i), nameVec.at(i).c_str(),"p");
   }

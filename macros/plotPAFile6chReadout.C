@@ -11,7 +11,7 @@
 
 extern char* optarg;
 
-void plotPAFile(std::string infiles, std::string output = "readPAFile_output")
+void plotPAFile6chReadout(std::string infiles, std::string output = "readPAFile_output")
 {
   std::string outputTMP = output;
   TFile *fout = new TFile(outputTMP.append(".root").c_str(),"recreate");
@@ -27,7 +27,7 @@ void plotPAFile(std::string infiles, std::string output = "readPAFile_output")
   std::vector<std::vector<TGraphErrors*>> graphsVec;
   for (int i=0; i<dataVec.size(); i++) { 
     graphsVec.emplace_back(std::vector<TGraphErrors*>());
-    for (int j=0; j<4; j++) { graphsVec.at(i).push_back(new TGraphErrors()); }
+    for (int j=0; j<24; j++) { graphsVec.at(i).push_back(new TGraphErrors()); }
   }
   for (int i=0; i<dataVec.size(); i++) { drawer.getGraphsPAData(dataVec.at(i), graphsVec.at(i)); }
   beautify::setStyle();
@@ -35,28 +35,28 @@ void plotPAFile(std::string infiles, std::string output = "readPAFile_output")
   std::vector<TGraphErrors*> graphs;
      ///------------------------------------------------------------------------------------------------------------------
   /// pick the graphs you want to use here!!
-  /// STANDARD!! Plot all 6 currents given within 2 files.
-  for (auto graph : graphsVec.at(0)) { graphs.emplace_back(std::move(graph)); }      // all of first file
+  /// STANDARD!! Plot all 6 currents from a standard measurement.
+  graphs.emplace_back(std::move(graphsVec.at(0).at(current6ch::Suck)));
+  graphs.emplace_back(std::move(graphsVec.at(0).at(current6ch::Stop)));
+  graphs.emplace_back(std::move(graphsVec.at(0).at(current6ch::Wire)));
+  graphs.emplace_back(std::move(graphsVec.at(0).at(current6ch::GT)));
+  graphs.emplace_back(std::move(graphsVec.at(0).at(current6ch::GB)));
+  graphs.emplace_back(std::move(graphsVec.at(0).at(current6ch::Anode)));
                                                                                      // I_stop, I_wire, I_GT, I_anode
   //if (dataVec.size() > 1) {                                                          // 1 and 3 of second file
   //  graphs.emplace_back(std::move(graphsVec.at(1).at(current::suck)));               // I_suck
   //  graphs.emplace_back(std::move(graphsVec.at(1).at(current::GB)));                 // I_GB
   //}
 
-  /*std::vector<std::string> nameVec = { std::string("I_stop"),
+  std::vector<std::string> nameVec = { std::string("I_suck"),
+                                       std::string("I_stop"),
                                        std::string("I_wire"),
                                        std::string("I_GT"),
-                                       std::string("I_anode"),
-                                       std::string("I_suck"),
-                                       std::string("I_GB") };*/
-
-    std::vector<std::string> nameVec = { std::string("I_wire"),
-                                         std::string("I_GT"),
-                                         std::string("I_GB"),
-                                         std::string("I_anode") };
+                                       std::string("I_GB"),
+                                       std::string("I_anode") };
 
   drawer.setDefaultMarker(graphs);
-  drawer.setAxisLabels(graphs);
+  drawer.setAxisLabels(graphs, "time [h]");
   TCanvas* c = drawer.drawGraphs(graphs, nameVec);
   ///------------------------------------------------------------------------------------------------------------------*/
 
@@ -134,9 +134,9 @@ int main(int argc, char** argv)
     }
   }
 
-  printf("\n\n%sRunning plotPAFile%s\n\n",text::BOLD,text::RESET);
+  printf("\n\n%sRunning plotPAFile6chReadout%s\n\n",text::BOLD,text::RESET);
   
-  plotPAFile(inputFiles, output);
+  plotPAFile6chReadout(inputFiles, output);
 
   printf("\n\n%s%sDONE!%s\n\n",text::BOLD,text::GRN,text::RESET);
 }

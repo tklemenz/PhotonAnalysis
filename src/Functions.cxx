@@ -4,18 +4,18 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <utility>
 
 //____________________________________________________________________________________
 std::vector<std::vector<float>> readFile(std::string infile, bool tab, char delimiter)
 {
   using namespace std;
 
-  vector<vector<float>> data{}; //needs to have variable number of vectors inside
-  size_t pos;
+  vector<vector<float>> data;
   string line;
-  vector<string> tokens;
   ifstream inputFile;
   int columnCounter = -1;
+
   char Delimiter;
   if (tab) { Delimiter = '\t'; }
   else { Delimiter = delimiter; }
@@ -26,14 +26,22 @@ std::vector<std::vector<float>> readFile(std::string infile, bool tab, char deli
     while(getline(inputFile, line)) {
       istringstream iss(line);
       string token;
+      columnCounter = -1;
       while(getline(iss, token, Delimiter)) {
+        columnCounter++;
+        data.emplace_back(vector<float>());
         //printf("%s\n",token.c_str());
-        tokens.push_back(token);
+        if (columnCounter == 0) {
+          data.at(columnCounter).push_back(convertTime(token));
+        }
+        else {
+          data.at(columnCounter).push_back(atof(token.c_str()));
+        }
       }
     }
   }
 
-  return data;
+  return std::move(data);
 }
 
 
@@ -42,7 +50,7 @@ std::vector<std::vector<float>> readPAFile(std::string infile)
 {
   using namespace std;
 
-  vector<vector<float>> data{{},{},{},{},{}};
+  vector<vector<float>> data;
   string line;
   ifstream inputFile;
   int columnCounter = -1;
@@ -56,6 +64,7 @@ std::vector<std::vector<float>> readPAFile(std::string infile)
       columnCounter = -1;
       while(getline(iss, token, '\t')) {
         columnCounter++;
+        data.emplace_back(vector<float>());
         //printf("%s\n",token.c_str());
         if (columnCounter == 0) {
           data.at(columnCounter).push_back(convertTime(token));
@@ -74,7 +83,7 @@ std::vector<std::vector<float>> readPAFile(std::string infile)
     exit(1);
   }
 
-  return data;
+  return std::move(data);
 }
 
 

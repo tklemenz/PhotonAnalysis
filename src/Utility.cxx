@@ -5,6 +5,24 @@
 #include "TStyle.h"
 #include "TROOT.h"
 
+#include <vector>
+#include <string>
+#include <sstream>
+#include <utility>
+
+std::vector<std::string> splitList(std::string& inString)
+{
+  std::vector<std::string> outVec;
+  std::istringstream stream(inString);
+  std::string token;
+
+  while (std::getline(stream, token, ',')) {
+    outVec.emplace_back(token);
+  }
+
+  return std::move(outVec);
+}
+
 namespace beautify
 {
 

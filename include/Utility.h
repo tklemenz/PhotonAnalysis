@@ -6,16 +6,44 @@
 class TH1F;
 class TGraphErrors;
 
+std::vector<std::string> splitList(std::string& inString);
 
+enum current {
+  suck  = 0,
+  stop  = 0,
+  wire  = 1,
+  gt    = 2,
+  gb    = 2,
+  anode = 3
+};
+
+enum current6ch {
+  Suck  = 0,
+  Stop  = 1,
+  Wire  = 2,
+  GT    = 3,
+  GB    = 4,
+  Anode = 5
+};
+
+enum channel {
+  one   = 0,
+  two   = 1,
+  three = 2,
+  four  = 3,
+  five  = 4,
+  six   = 5
+};
 
 namespace beautify
 {
 
-  static const std::vector<short> colors {kYellow+2,
-                                          kBlue,
-                                          kRed,
-                                          kGreen,
-                                          kCyan,
+  static const std::vector<short> colors {kBlue+2,
+                                          kRed+1,
+                                          kYellow+1,
+                                          kGreen+2,
+                                          kRed+3,
+                                          kCyan+1,
                                           kMagenta,
                                           kOrange,
                                           kSpring,
