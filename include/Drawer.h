@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "Utility.h"
+
 #define DEFAULTMARKERSTYLE 20
 
 class TCanvas;
@@ -20,6 +22,8 @@ class Drawer
   Drawer() = default;
   ~Drawer() = default;
   Drawer(const Drawer &drawer);
+
+  TGraphErrors* getSpecificGraph(std::vector<std::vector<float>> &data, const current6ch channel, const bool debug = false);
 
   void getGraphsPAData(std::vector<std::vector<float>> &data, std::vector<TGraphErrors*> &graphs);    // only works for picoLogic data format
 

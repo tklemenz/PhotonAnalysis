@@ -33,12 +33,16 @@ set(EXE_SRCS
    macros/plotPAFile.C
    macros/plotPAFile6chReadout.C
    macros/testReadFile.C
+   macros/plotMultiPAFilesStandard.C
+   macros/plotSpecific.C
    )
 
 set(EXE_NAMES
    plotPAFile
    plotPAFile6chReadout
    testReadFile
+   plotMultiPAFilesStandard
+   plotSpecific
    )
 
 list(LENGTH EXE_SRCS count)

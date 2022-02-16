@@ -18,7 +18,7 @@ void plotPAFile(std::string infiles, std::string output = "readPAFile_output")
 
   std::vector<std::vector<std::vector<float>>> dataVec;
 
-  for (auto &infile : splitList(infiles)) {
+  for (auto &infile : fileHandling::splitList(infiles)) {
     dataVec.emplace_back(readPAFile(infile));
   }
 

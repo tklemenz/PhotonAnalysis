@@ -4,11 +4,17 @@
 #include "TGraphErrors.h"
 #include "TStyle.h"
 #include "TROOT.h"
+#include "TString.h"
+#include "TSystem.h"
+#include "TObjArray.h"
 
 #include <vector>
 #include <string>
 #include <sstream>
 #include <utility>
+
+namespace fileHandling
+{
 
 std::vector<std::string> splitList(std::string& inString)
 {
@@ -21,6 +27,45 @@ std::vector<std::string> splitList(std::string& inString)
   }
 
   return std::move(outVec);
+}
+
+std::vector<std::string> splitString(std::string inString, const char* delimiter)
+{
+  std::vector<std::string> outVec;
+  std::istringstream stream(inString);
+  std::string token;
+
+  while (std::getline(stream, token, *delimiter)) {
+    outVec.emplace_back(token);
+  }
+
+  return std::move(outVec);
+}
+
+std::vector<std::string> getFileNames(const TString& input)
+{
+  std::vector<std::string> outVec;
+  TString allFiles;
+
+  if (input.EndsWith(".txt")){ allFiles=gSystem->GetFromPipe(Form("cat %s",input.Data())); }
+  else if (splitString(input.Data(), ",").size() > 1) { for(auto& string : splitString(input.Data(), ",")) { allFiles.Append(string + "\n");}; }
+  else { allFiles=gSystem->GetFromPipe(Form("find %s",input.Data())); }
+
+  TObjArray *arr = allFiles.Tokenize("\n");
+
+  for (int ifile=1; ifile<arr->GetEntriesFast(); ++ifile){
+    TString file=arr->At(ifile)->GetName();
+    outVec.emplace_back(file);
+  }
+
+  return std::move(outVec);
+}
+
+void stripString(std::string& inString, const char pattern)
+{
+  inString.erase(std::remove(inString.begin(), inString.end(), pattern), inString.end());
+}
+
 }
 
 namespace beautify

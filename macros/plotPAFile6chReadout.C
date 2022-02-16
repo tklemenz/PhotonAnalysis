@@ -18,7 +18,7 @@ void plotPAFile6chReadout(std::string infiles, std::string output = "readPAFile_
 
   std::vector<std::vector<std::vector<float>>> dataVec;
 
-  for (auto &infile : splitList(infiles)) {
+  for (auto &infile : fileHandling::splitList(infiles)) {
     dataVec.emplace_back(readPAFile(infile));
   }
 
@@ -48,7 +48,7 @@ void plotPAFile6chReadout(std::string infiles, std::string output = "readPAFile_
   //  graphs.emplace_back(std::move(graphsVec.at(1).at(current::GB)));                 // I_GB
   //}
 
-  std::vector<std::string> nameVec = { std::string("I_suck"),
+  std::vector<std::string> nameVec = { std::string("I_aperture"),
                                        std::string("I_stop"),
                                        std::string("I_wire"),
                                        std::string("I_GT"),
@@ -56,7 +56,7 @@ void plotPAFile6chReadout(std::string infiles, std::string output = "readPAFile_
                                        std::string("I_anode") };
 
   drawer.setDefaultMarker(graphs);
-  drawer.setAxisLabels(graphs, "time [h]");
+  drawer.setAxisLabels(graphs, "time [s]");
   TCanvas* c = drawer.drawGraphs(graphs, nameVec);
   ///------------------------------------------------------------------------------------------------------------------*/
 
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 {
 
   char inputFiles[512] = "";
-  char output[512]    = "";
+  char output[512]    = "output";
 
   int argsforloop;
   while ((argsforloop = getopt(argc, argv, "hi:o:")) != -1) {

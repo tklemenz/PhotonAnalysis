@@ -3,10 +3,29 @@
 
 #include "TColor.h"
 
+#include <map>
+
 class TH1F;
 class TGraphErrors;
 
-std::vector<std::string> splitList(std::string& inString);
+namespace fileHandling
+{
+  std::vector<std::string> splitList(std::string& inString);
+
+  std::vector<std::string> splitString(std::string inString, const char* delimiter);
+
+  std::vector<std::string> getFileNames(const TString& input);
+
+  void stripString(std::string& inString, const char pattern);
+}
+
+namespace delimiter
+{
+  static constexpr const char* slash = "/";
+  static constexpr const char* dot = ".";
+  static constexpr const char* minus = "-";
+  static constexpr const char* underscore = "_";
+}
 
 enum current {
   suck  = 0,
@@ -35,15 +54,29 @@ enum channel {
   six   = 5
 };
 
+namespace mapping {
+
+  const std::map<std::string, current6ch> channelMap{
+    {"I_aperture", current6ch::Suck},
+    {"I_stop", current6ch::Stop},
+    {"I_wire", current6ch::Wire},
+    {"I_GT", current6ch::GT},
+    {"I_GB", current6ch::GB},
+    {"I_anode", current6ch::Anode}
+  };
+
+}
+
 namespace beautify
 {
 
   static const std::vector<short> colors {kBlue+2,
                                           kRed+1,
+                                          kGray+2,
                                           kYellow+1,
+                                          kCyan+1,
                                           kGreen+2,
                                           kRed+3,
-                                          kCyan+1,
                                           kMagenta,
                                           kOrange,
                                           kSpring,

@@ -1,5 +1,4 @@
 #include "Drawer.h"
-#include "Utility.h"
 
 #include "TCanvas.h"
 #include "TGraphErrors.h"
@@ -13,7 +12,23 @@
 Drawer::Drawer(const Drawer &drawer)
 //: dummy(drawer.dummy)
 {
-  
+
+}
+
+//________________________________________________________________________________
+TGraphErrors* Drawer::getSpecificGraph(std::vector<std::vector<float>> &data, const current6ch channel, const bool debug)
+{
+  TGraphErrors* graph = new TGraphErrors();
+
+  float refTime = data.at(0).at(0);
+
+  if (debug) { printf("%s%s[DEBUG][Drawer][getSpecificGraph]%s%s data.size(): %lu\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, data.size(), text::RESET); }
+  if (debug) { printf("%s%s[DEBUG][Drawer][getSpecificGraph]%s%s Accessing data.at(%i)...\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, channel+1, text::RESET); }
+  for (int i=0; i<data.at(0).size(); i++) {
+    graph->SetPoint(i,(data.at(0).at(i)-refTime)/*/3600*/,data.at(channel+1).at(i));
+  }
+  if (debug) { printf("%s%s[DEBUG][Drawer][getSpecificGraph]%s%s done\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
+  return graph;
 }
 
 //________________________________________________________________________________
@@ -35,7 +50,7 @@ void Drawer::getGraphsPAData(std::vector<std::vector<float>> &data, std::vector<
 
   for (int i=0; i<data.at(0).size(); i++) {
     for (int j=0; j<graphs.size(); j++) {
-      graphs.at(j)->SetPoint(i,(data.at(0).at(i)-refTime)/3600,data.at(j+1).at(i));
+      graphs.at(j)->SetPoint(i,(data.at(0).at(i)-refTime)/*/3600*/,data.at(j+1).at(i));
     }
   }
 
