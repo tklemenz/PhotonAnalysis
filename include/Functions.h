@@ -12,7 +12,9 @@ std::vector<std::vector<float>> readFile(std::string infile, bool tab = true, ch
 
 /// The readPAFile function reads a file from the PicoLogic picoampere meter
 /// and returns a vector of vectors containing the data.
-std::vector<std::vector<float>> readPAFile(std::string infile);
+std::vector<std::vector<float>> readPAFile(std::string infile, bool debug = false);
+
+std::vector<std::vector<float>> readCSVFile(std::string infile, bool debug = false);
 
 
 /// Time converter from picologic format monthdayhhmmss to seconds e.g. 1209184110.795..... = 9 Dec 18:41 and 10.xy seconds

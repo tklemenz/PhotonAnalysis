@@ -1,9 +1,13 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include <Rtypes.h>
 #include "TColor.h"
 
 #include <map>
+
+#include <fmt/format.h>
+#include <boost/lexical_cast.hpp>
 
 class TH1F;
 class TGraphErrors;
@@ -14,7 +18,7 @@ namespace fileHandling
 
   std::vector<std::string> splitString(std::string inString, const char* delimiter);
 
-  std::vector<std::string> getFileNames(const TString& input);
+  std::vector<std::string> getFileNames(const TString& input, const bool debug = false);
 
   void stripString(std::string& inString, const char pattern);
 }
@@ -67,25 +71,71 @@ namespace mapping {
 
 }
 
+namespace plotting {
+
+  struct graphInfo
+  {
+    TGraphErrors* graph = nullptr;
+    bool active;
+    int column;
+    std::string name;
+    std::string title;
+    short color;
+    short fileNr;
+  };
+
+  struct miscInfo
+  {
+    std::string xTitle;
+    std::string yTitle;
+    std::string legendHeader;
+    bool makeLegend;
+    int markerStyle;
+  };
+
+}
+
 namespace beautify
 {
 
-  static const std::vector<short> colors {kBlue+2,
-                                          kRed+1,
-                                          kGray+2,
-                                          kYellow+1,
-                                          kCyan+1,
-                                          kGreen+2,
-                                          kRed+3,
-                                          kMagenta,
-                                          kOrange,
-                                          kSpring,
-                                          kTeal,
-                                          kAzure,
-                                          kViolet,
-                                          kPink};
+  static const std::vector<short> excelColors {kBlue+2,
+                                               kRed+1,
+                                               kGray+2,
+                                               kYellow+1,
+                                               kCyan+1,
+                                               kGreen+2,
+                                               kRed+3,
+                                               kMagenta,
+                                               kOrange,
+                                               kSpring,
+                                               kTeal,
+                                               kAzure,
+                                               kViolet,
+                                               kPink};
 
-  void setStyle();
+  static const std::vector<short> niceColors {kGreen+2,
+                                              kRed+1,
+                                              kBlue+2,
+                                              kCyan+1,
+                                              kTeal+1,
+                                              kGreen+2,
+                                              kRed+3,
+                                              kMagenta,
+                                              kOrange,
+                                              kSpring,
+                                              kTeal,
+                                              kAzure,
+                                              kViolet,
+                                              kPink};
+
+/*
+From TColor class reference:
+kWhite  = 0,   kBlack  = 1,   kGray    = 920,  kRed    = 632,  kGreen  = 416,
+kBlue   = 600, kYellow = 400, kMagenta = 616,  kCyan   = 432,  kOrange = 800,
+kSpring = 820, kTeal   = 840, kAzure   =  860, kViolet = 880,  kPink   = 900
+*/
+
+  void setStyle(bool graypalette = false);
 
   void setStyleHisto(TH1F* histo);
 
@@ -123,5 +173,32 @@ namespace text
   const char* const BLINK = "\e[5m";
 
 } // namespace text
+
+template <typename T>
+T getFromConfig(const std::string& param)
+{
+  T retVal{};
+
+  if constexpr (std::is_same<int, T>::value) {
+    retVal = std::stoi(param);
+  } else if constexpr (std::is_same<float, T>::value) {
+    retVal = std::stof(param);
+  } else if constexpr (std::is_same<double, T>::value) {
+    retVal = std::stod(param);
+  } else if constexpr (std::is_same<short, T>::value) {
+    retVal = boost::lexical_cast<short>(param);
+  } else if constexpr (std::is_same<bool, T>::value) {
+    if ((param == "true") || (param == "True") || (param == "TRUE") || (param == "1")) {
+      retVal = true;
+    } else if ((param == "false") || (param == "False") || (param == "FALSE") || (param == "0")) {
+      retVal = false;
+    } else {
+    }
+  } else if constexpr (std::is_same<std::string, T>::value) {
+    retVal = param;
+  } else {
+  }
+return retVal;
+}
 
 #endif

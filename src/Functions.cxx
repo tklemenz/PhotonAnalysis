@@ -1,4 +1,5 @@
 #include "Functions.h"
+#include "Utility.h"
 
 #include <cstring>
 #include <sstream>
@@ -46,7 +47,7 @@ std::vector<std::vector<float>> readFile(std::string infile, bool tab, char deli
 
 
 //____________________________________________________________________________________
-std::vector<std::vector<float>> readPAFile(std::string infile)
+std::vector<std::vector<float>> readPAFile(std::string infile, bool debug)
 {
   using namespace std;
 
@@ -63,8 +64,8 @@ std::vector<std::vector<float>> readPAFile(std::string infile)
       string token;
       columnCounter = -1;
       while(getline(iss, token, '\t')) {
-        columnCounter++;
-        data.emplace_back(vector<float>());
+        columnCounter++;                                          if (debug) { printf("%s%s[DEBUG][Functions][readPAFile]%s%s Reading column: %i\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, columnCounter, text::RESET); }
+        data.emplace_back(vector<float>());                       if (debug) { printf("%s%s[DEBUG][Functions][readPAFile]%s%s Token: %s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, token.data(), text::RESET); }
         //printf("%s\n",token.c_str());
         if (columnCounter == 0) {
           data.at(columnCounter).push_back(convertTime(token));
@@ -76,11 +77,61 @@ std::vector<std::vector<float>> readPAFile(std::string infile)
     }
   }
 
-  if (!(data.at(0).size()==data.at(1).size() && data.at(0).size()==data.at(2).size()
-     && data.at(0).size()==data.at(3).size() && data.at(0).size()==data.at(4).size()))
-  {
-    printf("Something went wrong while reading the data!\n");
-    exit(1);
+  for (int i=0; i<data.size(); i++) {
+    if (!data.at(0).size()==data.at(i).size()) {
+      printf("Something went wrong while reading the data!\n");
+      exit(1);
+    }
+  }
+
+  return std::move(data);
+}
+
+
+//____________________________________________________________________________________
+std::vector<std::vector<float>> readCSVFile(std::string infile, bool debug)
+{
+  using namespace std;
+
+  vector<vector<float>> data;
+  string line;
+  ifstream inputFile;
+  int columnCounter = -1;
+
+  inputFile.open(infile);
+
+  if (inputFile.is_open()) {
+    int lineCounter = 0;
+    while(getline(inputFile, line)) {
+      istringstream iss(line);
+      string token;
+      columnCounter = -1;
+      while(getline(iss, token, '\t')) {
+        columnCounter++;                                          if (debug) { printf("%s%s[DEBUG][Functions][readCSVFile]%s%s Reading column: %i\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, columnCounter, text::RESET); }
+        if (lineCounter == 0) {
+          data.emplace_back(vector<float>());                       if (debug) { printf("%s%s[DEBUG][Functions][readCSVFile]%s%s Token: %s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, token.data(), text::RESET); }
+        }
+        data.at(columnCounter).push_back(atof(token.c_str()));
+      }
+      lineCounter++;
+    }
+  }
+
+  if (debug) { 
+    int counter = 0;
+    for (auto& vector : data) {
+      printf("%s%s[DEBUG][Functions][readCSVFile]%s%s Column %i has size %lu.\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, counter, vector.size(), text::RESET);
+      counter++;
+    }
+  }
+
+  for (int i=0; i<data.size(); i++) {
+    if (!data.at(0).size()==data.at(i).size()) {
+      printf("%s%s[ERROR][Functions][readCSVFile]%s%s Something went wrong while reading the data!%s\n", text::BOLD, text::RED, text::RESET, text::RED, text::RESET);
+      printf("%s%s[ERROR][Functions][readCSVFile]%s%s Data length in column %i should be %lu but is %lu.%s\n", text::BOLD, text::RED, text::RESET, text::RED, i, data.at(0).size(), data.at(i).size(), text::RESET);
+      printf("%s%s[ERROR][Functions][readCSVFile]%s%s Number of columns in the data file is %lu.%s\n", text::BOLD, text::RED, text::RESET, text::RED, data.size(), text::RESET);
+      exit(1);
+    }
   }
 
   return std::move(data);

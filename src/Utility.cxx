@@ -42,20 +42,36 @@ std::vector<std::string> splitString(std::string inString, const char* delimiter
   return std::move(outVec);
 }
 
-std::vector<std::string> getFileNames(const TString& input)
+std::vector<std::string> getFileNames(const TString& input, const bool debug)
 {
   std::vector<std::string> outVec;
   TString allFiles;
 
-  if (input.EndsWith(".txt")){ allFiles=gSystem->GetFromPipe(Form("cat %s",input.Data())); }
-  else if (splitString(input.Data(), ",").size() > 1) { for(auto& string : splitString(input.Data(), ",")) { allFiles.Append(string + "\n");}; }
-  else { allFiles=gSystem->GetFromPipe(Form("find %s",input.Data())); }
+  /*if (input.EndsWith(".txt")){
+    allFiles=gSystem->GetFromPipe(Form("ls %s",input.Data()));
+    if (debug) { printf("%s%s[DEBUG][Utility][getFileNames]%s%s allFiles from .txt:\n%s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, allFiles.Data(),text::RESET); }
+  }*/
+  if (splitString(input.Data(), ",").size() > 1) {
+    for(auto& string : splitString(input.Data(), ",")) { allFiles.Append(string + "\n");};
+    if (debug) { printf("%s%s[DEBUG][Utility][getFileNames]%s%s allFiles from , separation:\n%s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, allFiles.Data(),text::RESET); }
+  }
+  else {
+    allFiles=gSystem->GetFromPipe(Form("find %s",input.Data()));
+    if (debug) { printf("%s%s[DEBUG][Utility][getFileNames]%s%s allFiles from `else` condition:\n%s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, allFiles.Data(),text::RESET); }
+  }
 
   TObjArray *arr = allFiles.Tokenize("\n");
 
-  for (int ifile=1; ifile<arr->GetEntriesFast(); ++ifile){
+  for (int ifile=0; ifile<arr->GetEntriesFast(); ++ifile){
     TString file=arr->At(ifile)->GetName();
     outVec.emplace_back(file);
+  }
+
+  if (debug) {
+    printf("%s%s[DEBUG][Utility][getFileNames]%s%s output vector size: %lu\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, outVec.size(), text::RESET);
+    for (auto& content : outVec) {
+      printf("%s%s[DEBUG][Utility][getFileNames]%s%s content: %s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, content.data(), text::RESET);
+    }
   }
 
   return std::move(outVec);
@@ -72,7 +88,7 @@ namespace beautify
 {
 
 //________________________________________________________________________________
-void setStyle()
+/*void setStyle()
 {
   const Int_t NCont=255;
   TStyle *st = new TStyle("goodstyle","goodstyle");
@@ -121,6 +137,46 @@ void setStyle()
   st->cd();
   gROOT->SetStyle("goodstyle");
   gStyle->SetOptStat(0);
+}*/
+
+void setStyle(bool graypalette) {
+  gStyle->Reset("Plain");
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);
+  if(graypalette) gStyle->SetPalette(8,0);
+  else gStyle->SetPalette(1);
+  gStyle->SetCanvasColor(10);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetFrameLineWidth(1);
+  gStyle->SetFrameFillColor(kWhite);
+  gStyle->SetPadColor(10);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+  gStyle->SetPadBottomMargin(0.15);
+  gStyle->SetPadLeftMargin(0.15);
+  gStyle->SetHistLineWidth(1);
+  gStyle->SetHistLineColor(kRed);
+  gStyle->SetFuncWidth(2);
+  gStyle->SetFuncColor(kGreen);
+  gStyle->SetLineWidth(2);
+  gStyle->SetLabelSize(0.045,"xyz");
+  gStyle->SetLabelOffset(0.01,"y");
+  gStyle->SetLabelOffset(0.01,"x");
+  gStyle->SetLabelColor(kBlack,"xyz");
+  gStyle->SetTitleSize(0.05,"xyz");
+  gStyle->SetTitleOffset(1.25,"y");
+  gStyle->SetTitleOffset(1.2,"x");
+  gStyle->SetTitleFillColor(kWhite);
+  gStyle->SetTextSizePixels(26);
+  gStyle->SetTextFont(42);
+  //  gStyle->SetTickLength(0.04,"X");  gStyle->SetTickLength(0.04,"Y"); 
+
+  gStyle->SetLegendBorderSize(0);
+  gStyle->SetLegendFillColor(kWhite);
+  //  gStyle->SetFillColor(kWhite);
+  gStyle->SetLegendFont(42);
+
+
 }
 
 

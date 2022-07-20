@@ -56,7 +56,7 @@ void aperturePhYield()
   hPhotonYield->Draw("colz");
 
 
-  std::vector<std::vector<double>> dataGas = {
-    
-  }
+//  std::vector<std::vector<double>> dataGas = {
+//    
+//  }
 }

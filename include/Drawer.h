@@ -23,6 +23,8 @@ class Drawer
   ~Drawer() = default;
   Drawer(const Drawer &drawer);
 
+  std::vector<TGraphErrors*> getGraphsAnyData(std::vector<std::vector<float>> &data, const bool debug = false);
+
   TGraphErrors* getSpecificGraph(std::vector<std::vector<float>> &data, const current6ch channel, const bool debug = false);
 
   void getGraphsPAData(std::vector<std::vector<float>> &data, std::vector<TGraphErrors*> &graphs);    // only works for picoLogic data format

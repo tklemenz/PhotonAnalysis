@@ -9,49 +9,18 @@
 #include "Utility.h"
 #include "Drawer.h"
 
+#include "fmt/format.h"
+#include <boost/property_tree/info_parser.hpp>
+#include <boost/program_options.hpp>
+
 extern char* optarg;
 
-void plotSpecific(const TString inputFiles, const std::string current, std::string legendEntries, std::string title, std::string outputFile, const bool debug)
+void plotFromCSV(const TString inputFiles, std::string xLabel, std::string yLabel, std::string legendEntries, std::string title, std::string outputFile, const bool debug)
 {
   if (debug) { printf("%s%s[DEBUG][Macro]%s%s Starting in DEBUG mode!\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
 
-  auto files = fileHandling::getFileNames(inputFiles);                                                                     if (debug) { printf("%s%s[DEBUG][Macro]%s%s Number of files to process: %lu\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, files.size(), text::RESET); }
+  auto files = fileHandling::getFileNames(inputFiles, debug);                                                              if (debug) { printf("%s%s[DEBUG][Macro]%s%s Number of files to process: %lu\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, files.size(), text::RESET); }
   auto legend = fileHandling::splitString(legendEntries, delimiter::slash);                                                if (debug) { printf("%s%s[DEBUG][Macro]%s%s Number of legend entries given: %lu\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, legend.size(), text::RESET); }
-
-  if (files.size() != legend.size()) {
-    printf("\n%s%sGive the correct number of legend entries.\n%s", text::BOLD, text::RED, text::RESET);
-    printf("number of files: %lu\nnumber of legend entries: %lu\n", files.size(), legend.size());
-    return;
-  }
-
-  if (debug) { printf("%s%s[DEBUG][Macro]%s%s Checking observable...\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
-  auto observable = mapping::channelMap.at(current);
-
-  if (debug) {
-    switch(observable) {
-      case current6ch::Suck:
-        printf("%s%s[DEBUG][Macro]%s%s Observable is I_aperture\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET);
-        break;
-      case current6ch::Stop:
-        printf("%s%s[DEBUG][Macro]%s%s Observable is I_stop\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET);
-        break;
-      case current6ch::Wire:
-        printf("%s%s[DEBUG][Macro]%s%s Observable is I_wire\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET);
-        break;
-      case current6ch::GT:
-        printf("%s%s[DEBUG][Macro]%s%s Observable is I_GT\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET);
-        break;
-      case current6ch::GB:
-        printf("%s%s[DEBUG][Macro]%s%s Observable is I_GB\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET);
-        break;
-      case current6ch::Anode:
-        printf("%s%s[DEBUG][Macro]%s%s Observable is I_anode\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET);
-        break;
-      default:
-        exit(EXIT_FAILURE);
-    }
-  }
-
   auto output = fileHandling::splitString(outputFile, delimiter::dot).front();                                             if (debug) { printf("%s%s[DEBUG][Macro]%s%s Output file name: %s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, output.data(), text::RESET); }
 
   TFile *fout = new TFile(output.append(".root").data(),"recreate");
@@ -59,27 +28,47 @@ void plotSpecific(const TString inputFiles, const std::string current, std::stri
   std::vector<TGraphErrors*> graphs;
   Drawer drawer;
 
+  if (debug) { 
+    printf("%s%s[DEBUG][Macro]%s%s Reading data from %lu files...\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, files.size(), text::RESET);
+    for (auto& file : files) {
+      printf("%s%s[DEBUG][Macro]%s%s %s\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, file.data(), text::RESET);
+    }
+  }
   for (auto& file : files) {
-    std::vector<std::vector<float>> data = readPAFile(file,debug);
-    graphs.emplace_back(drawer.getSpecificGraph(data, observable/*, true*/));   // can be called with bool for debug as third argument
+    std::vector<std::vector<float>> data = readCSVFile(file, debug);
+    std::vector<TGraphErrors*> tmpGraphs;
+    tmpGraphs = drawer.getGraphsAnyData(data, debug);
+    graphs.insert(std::end(graphs), std::begin(tmpGraphs), std::end(tmpGraphs));
   }
 
   if (debug) { printf("%s%s[DEBUG][Macro]%s%s Number of graphs filled: %lu\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, graphs.size(), text::RESET); }
 
-  beautify::setStyle();
+  beautify::setStyle(false);
 
   if (debug) { printf("%s%s[DEBUG][Macro]%s%s Set marker\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
   drawer.setDefaultMarker(graphs);
-  drawer.setAxisLabels(graphs, "time [s]");
 
+  if (debug) { printf("%s%s[DEBUG][Macro]%s%s Set axis label\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
+  drawer.setAxisLabels(graphs, xLabel, yLabel);
+
+  if (debug) { printf("%s%s[DEBUG][Macro]%s%s Call drawer.drawGraphs\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
   TCanvas* c = drawer.drawGraphs(graphs, legend, title);
+  //c->SetLogy();
 
   fout->WriteObject(c, "canvas");
+
+  if (debug) { printf("%s%s[DEBUG][Macro]%s%s Write canvas to file\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
   for (int i = 0; i < graphs.size(); i++) {
-    fout->WriteObject(graphs.at(i), legend.at(i).c_str());
+    if (legend.size() > 1) {
+      fout->WriteObject(graphs.at(i), legend.at(i).c_str());
+    }
+    else {
+      fout->WriteObject(graphs.at(i), graphs.at(i)->GetName());
+    }
   }
   fout->Close();
 
+  if (debug) { printf("%s%s[DEBUG][Macro]%s%s Create pdf\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, text::RESET); }
   output = fileHandling::splitString(output, delimiter::dot).front();
   c->Print(output.append(".pdf").c_str());
 
@@ -90,14 +79,15 @@ int main(int argc, char** argv)
 {
 
   char inputFiles[512] = "";
+  char xLabel[512]     = "x";
+  char yLabel[512]     = "y";
   char outputFile[512] = "plotSpecific_output";
-  char current[512]    = "I_GT";
   char legend[512]     = "";
   char title[512]      = "Default";
   bool debug     = false;
 
   int argsforloop;
-  while ((argsforloop = getopt(argc, argv, "hi:o:c:l:t:d:")) != -1) {
+  while ((argsforloop = getopt(argc, argv, "hi:o:x:y:l:t:d:")) != -1) {
     switch (argsforloop) {
       case '?':
         ///TODO: write usage function
@@ -108,8 +98,11 @@ int main(int argc, char** argv)
       case 'o':
         strncpy(outputFile, optarg, 512);
         break;
-      case 'c':
-        strncpy(current, optarg, 512);
+      case 'x':
+        strncpy(xLabel, optarg, 512);
+        break;
+      case 'y':
+        strncpy(yLabel, optarg, 512);
         break;
       case 'l':
         strncpy(legend, optarg, 512);
@@ -128,9 +121,9 @@ int main(int argc, char** argv)
     }
   }
 
-  printf("\n\n%sRunning plotSpecific%s\n\n",text::BOLD,text::RESET);
+  printf("\n\n%sRunning plotFromCSV%s\n\n",text::BOLD,text::RESET);
   
-  plotSpecific(inputFiles, current, legend, title, outputFile, debug);
+  plotFromCSV(inputFiles, xLabel, yLabel, legend, title, outputFile, debug);
 
   printf("\n\n%s%sDONE!%s\n\n",text::BOLD,text::GRN,text::RESET);
 }
