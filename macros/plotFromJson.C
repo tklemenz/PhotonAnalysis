@@ -192,9 +192,6 @@ int main(int argc, char* argv[])
       minY = TMath::MinElement(gr.graph->GetN(),gr.graph->GetY());
       maxX = TMath::MaxElement(gr.graph->GetN(),gr.graph->GetX());
       minX = TMath::MinElement(gr.graph->GetN(),gr.graph->GetX());
-
-      gr.graph->GetXaxis()->SetTitle(miscInfos.xTitle.c_str());
-      gr.graph->GetYaxis()->SetTitle(miscInfos.yTitle.c_str());
     }
 
     float maxy = TMath::MaxElement(gr.graph->GetN(),gr.graph->GetY());
@@ -210,18 +207,27 @@ int main(int argc, char* argv[])
     grCounter++;
   }
 
+  fout->cd();
+  gDirectory->mkdir("graphs");
+  fout->cd("graphs");
+
   grCounter = 0;
   for (auto& gr : grInfo) {
     if (!gr.active) continue;
     gr.graph->SetMarkerStyle(miscInfos.markerStyle);
     gr.graph->SetMarkerColor(gr.color);
     beautify::setStyleGraph(gr.graph);
+    gr.graph->GetYaxis()->SetLimits(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
+    gr.graph->GetYaxis()->SetRange(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
+    gr.graph->GetYaxis()->SetRangeUser(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
+    gr.graph->GetXaxis()->SetTitle(miscInfos.xTitle.c_str());
+    gr.graph->GetYaxis()->SetTitle(miscInfos.yTitle.c_str());
     if (grCounter == 0) {
-      gr.graph->GetYaxis()->SetRangeUser(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
       gr.graph->Draw("APEZ");
     } else {
       gr.graph->Draw("PE same");
     }
+    gr.graph->Write(gr.title.c_str(),TObject::kOverwrite);
     grCounter++;
   }
 
