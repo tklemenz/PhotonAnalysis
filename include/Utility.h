@@ -84,6 +84,15 @@ namespace plotting {
     short fileNr;
   };
 
+  struct ratioInfo
+  {
+    bool active;
+    std::string numerator;
+    std::string denominator;
+    std::string yTitle;
+    short color;
+  };
+
   struct miscInfo
   {
     std::string xTitle;
@@ -91,7 +100,10 @@ namespace plotting {
     std::string legendHeader;
     bool makeLegend;
     int markerStyle;
+    ratioInfo ratio;
   };
+
+
 
 }
 

@@ -71,11 +71,16 @@ void getInfoFromConfig(boost::property_tree::ptree& pt, std::vector<plotting::gr
   miscInfo.legendHeader = pt.get<std::string>("legend_title", "");
   miscInfo.markerStyle = pt.get<int>("marker_style",20);
   miscInfo.makeLegend = pt.get<bool>("make_legend", true);
-}
+  miscInfo.ratio.active = pt.get<bool>("make_ratio.active", false);
+  miscInfo.ratio.numerator = pt.get<std::string>("make_ratio.numerator", "");
+  miscInfo.ratio.denominator = pt.get<std::string>("make_ratio.denominator", "");
+  miscInfo.ratio.color = pt.get<short>("make_ratio.color", 600);
+  miscInfo.ratio.yTitle = pt.get<std::string>("make_ratio.y_axis_title", "");
 
-void makeGraphs(std::vector<plotting::graphInfo> info)
-{
-
+  if ((miscInfo.ratio.numerator == std::string("")) || (miscInfo.ratio.denominator == std::string(""))) {
+    miscInfo.ratio.active = false;
+    std::cout << "Ratio graph numerator or denominator was not set!" << std:: endl;
+  }
 }
 
 int main(int argc, char* argv[])
@@ -207,6 +212,36 @@ int main(int argc, char* argv[])
     grCounter++;
   }
 
+  if (miscInfos.ratio.active) {
+    drawer.divideCanvas(canvas);
+    canvas->cd(2);
+    TGraphErrors* numerator = nullptr;
+    TGraphErrors* denominator = nullptr;
+
+    for (auto& gr : grInfo) {
+      if (gr.name == miscInfos.ratio.numerator) {
+        numerator = gr.graph;
+      }
+      if (gr.name == miscInfos.ratio.denominator) {
+        denominator = gr.graph;
+      }
+    }
+
+    auto ratioGr = drawer.getRatioGraph(numerator, denominator);
+    ratioGr->SetMarkerStyle(miscInfos.ratio.color);
+    ratioGr->GetXaxis()->SetTitle(miscInfos.xTitle.c_str());
+    ratioGr->GetYaxis()->SetTitle(miscInfos.ratio.yTitle.c_str());
+
+    canvas->cd(2);
+    ratioGr->Draw("APEZ");
+    canvas->cd(1);
+
+    fout->cd();
+    gDirectory->mkdir("ratio_plot");
+    fout->cd("ratio_plot");
+    ratioGr->Write(fmt::format("ratio_{}/{}", miscInfos.ratio.numerator, miscInfos.ratio.denominator).data(), TObject::kOverwrite);
+  }
+
   fout->cd();
   gDirectory->mkdir("graphs");
   fout->cd("graphs");
@@ -217,9 +252,8 @@ int main(int argc, char* argv[])
     gr.graph->SetMarkerStyle(miscInfos.markerStyle);
     gr.graph->SetMarkerColor(gr.color);
     beautify::setStyleGraph(gr.graph);
-    gr.graph->GetYaxis()->SetLimits(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
-    gr.graph->GetYaxis()->SetRange(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
-    gr.graph->GetYaxis()->SetRangeUser(beautify::getMinRange(minY), beautify::getMaxRange(maxY));
+    gr.graph->SetMaximum(beautify::getMaxRange(maxY));
+    gr.graph->SetMinimum(beautify::getMinRange(minY));
     gr.graph->GetXaxis()->SetTitle(miscInfos.xTitle.c_str());
     gr.graph->GetYaxis()->SetTitle(miscInfos.yTitle.c_str());
     if (grCounter == 0) {
@@ -233,7 +267,7 @@ int main(int argc, char* argv[])
 
   // make the legend
   if (miscInfos.makeLegend) {
-    TLegend *legend = new TLegend( 0.8, 0.7, 0.89, 0.89);
+    TLegend *legend = new TLegend(0.8, 0.7, 0.89, 0.89);
     if (miscInfos.legendHeader != std::string("")) { legend->SetHeader(miscInfos.legendHeader.c_str(),"C"); }
     for (auto& pair: drawThese) {
       legend->AddEntry(pair.first, pair.second.title.c_str(),"p");

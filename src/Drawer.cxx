@@ -7,6 +7,8 @@
 #include "TLegend.h"
 #include "TStyle.h"
 
+#include <cmath>
+
 //ClassImp(Drawer);
 
 //________________________________________________________________________________
@@ -181,4 +183,53 @@ TLegend* Drawer::makeLegend (std::vector<TGraphErrors*> &graphs, const std::vect
   }
 
   return legend;
+}
+
+
+//________________________________________________________________________________
+void Drawer::divideCanvas(TCanvas* can)
+{
+  can->Divide(1,2);
+  can->cd(1)->SetBottomMargin(0);
+  can->cd(2)->SetTopMargin(0);
+}
+
+
+//________________________________________________________________________________
+TGraphErrors* Drawer::getRatioGraph(TGraphErrors* g1, TGraphErrors* g2)
+{
+  if(g1->GetN() != g2->GetN()) {
+    printf("%s%s[ERROR][Drawer][getRatioGraph]%s%s Number of points of the two grpahs does not match. Cannot make ratio graph!%s\n", text::BOLD, text::RED, text::RESET, text::RED, text::RESET);
+    return nullptr;
+  }
+
+  TGraphErrors* output = new TGraphErrors();
+
+  double x1, x2, y1, y2, ex1, ex2, ey1, ey2;
+
+  for (int i = 0; i < g1->GetN(); i++) {
+    g1->GetPoint(i, x1, y1);
+    g2->GetPoint(i, x2, y2);
+
+    if (x1 != x2) {
+      printf("%s%s[ERROR][Drawer][getRatioGraph]%s%s X values do not match. Cannot make ratio graph!%s\n", text::BOLD, text::RED, text::RESET, text::RED, text::RESET);
+      return nullptr;
+    }
+
+    ex1 = g1->GetErrorX(i);
+    ex2 = g2->GetErrorX(i);
+    ey1 = g1->GetErrorY(i);
+    ey2 = g2->GetErrorY(i);
+
+    double ratioEX, ratioEY, ratio = 0;
+
+    ratio = std::abs(y1/y2);
+    ratioEX = std::max(ex1, ex2);
+    ratioEY = std::sqrt(std::pow(ey1/y2,2) + std::pow(y1*ey2/pow(y2,2),2));
+
+    output->SetPoint(i, x1, ratio);
+    output->SetPointError(i, ratioEX, ratioEY);
+  }
+
+  return output;
 }

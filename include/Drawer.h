@@ -46,6 +46,10 @@ class Drawer
                 const std::vector<std::string>   &nameVec = std::vector<std::string>(),
                 const std::string                 title = std::string(""));
 
+  void divideCanvas(TCanvas* can);
+
+  TGraphErrors* getRatioGraph(TGraphErrors* g1, TGraphErrors* g2);
+
   //ClassDef(Drawer,1);
 };
 
