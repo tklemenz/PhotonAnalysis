@@ -81,7 +81,10 @@ namespace plotting {
     std::string name;
     std::string title;
     short color;
+    short markerStyle;
     short fileNr;
+    bool sum;
+    bool ete;
   };
 
   struct ratioInfo
@@ -93,6 +96,19 @@ namespace plotting {
     short color;
   };
 
+  struct sumInfo
+  {
+    bool active;
+    short color;
+  };
+
+  struct eteInfo
+  {
+    bool active;
+    bool normalize;
+    short color;
+  };
+
   struct miscInfo
   {
     std::string xTitle;
@@ -100,10 +116,11 @@ namespace plotting {
     std::string legendHeader;
     bool makeLegend;
     int markerStyle;
+    int markerSize;
     ratioInfo ratio;
+    sumInfo sum;
+    eteInfo ETE;
   };
-
-
 
 }
 

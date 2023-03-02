@@ -23,7 +23,7 @@ class Drawer
   ~Drawer() = default;
   Drawer(const Drawer &drawer);
 
-  std::vector<TGraphErrors*> getGraphsAnyData(std::vector<std::vector<float>> &data, const bool debug = false);
+  std::vector<TGraphErrors*> getGraphsAnyData(std::vector<std::vector<float>> &data, const int dataType = 0, const bool debug = false);
 
   TGraphErrors* getSpecificGraph(std::vector<std::vector<float>> &data, const current6ch channel, const bool debug = false);
 
@@ -48,7 +48,13 @@ class Drawer
 
   void divideCanvas(TCanvas* can);
 
-  TGraphErrors* getRatioGraph(TGraphErrors* g1, TGraphErrors* g2);
+  TGraphErrors* getRatioGraph(TGraphErrors* g1, TGraphErrors* g2, const bool debug = false);
+
+  TGraphErrors* getSumGraph(std::vector<TGraphErrors*> gVec, const bool debug = false);
+
+  TGraphErrors* getETEGraph(TGraphErrors* g1, TGraphErrors* g2, const bool normalize = true, const bool debug = false);
+
+  TGraphErrors* sumGraphs(TGraphErrors* g1, TGraphErrors* g2, const bool debug = false);
 
   //ClassDef(Drawer,1);
 };

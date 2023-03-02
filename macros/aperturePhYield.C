@@ -12,8 +12,8 @@ void aperturePhYield()
   auto* hPhotonYieldGas = new TH2F("hPhotonYieldGas", "Photo current below aperture hole (ArCH4);x [mm];y [mm]; I [nA]", 200,-10,10,200,-10,10);
 
   hPhotonYield->SetStats(0);
-  hPhotonYield->SetMinimum(5.4);
-  hPhotonYield->SetMaximum(10.6);
+  hPhotonYield->SetMinimum(2.03);
+  hPhotonYield->SetMaximum(2.54);
 
   hPhotonYieldGas->SetStats(0);
   hPhotonYieldGas->SetMinimum(5.4);
@@ -22,23 +22,43 @@ void aperturePhYield()
   const double sinPi = std::sin(pi/4);
 
   std::vector<std::vector<double>> data = {
-    {-1.1, -1.1, 10.4},   // center
-    {-10, -1.1, 8.0},     // left
-    {-1.1, 7.8, 6.9},     // top
-    {7.8, -1.1, 10.39},   // right
-    {-1.1, -10, 6.2},     // bottom
-    {-5.5, -1.1, 7.3},    // left half way
-    {3.3, -1.1, 6.4},     // right half way
+    /*
+    // Not normalized to first diode current measurement
+    {-1.1, -1.1, 2.05},   // center
+    {-10, -1.1, 2.04},     // left
+    {-1.1, 7.8, 2.06},     // top
+    {7.8, -1.1, 1.92},   // right
+    {-1.1, -10, 2.06},     // bottom
+    {-5.5, -1.1, 1.65},    // left half way
+    {3.3, -1.1, 1.8},     // right half way
     //{-1.1, 3.3, },      // top half way
     //{-5.5, -1.1, },     // bottom half way
-    {-4.4*sinPi-1.1, -4.4*sinPi-1.1, 7.44},  // bottom left half way
-    {-4.4*sinPi-1.1, 4.4*sinPi-1.1, 8.1},    // top left half way
-    {4.4*sinPi-1.1, 4.4*sinPi-1.1, 7.49},    // top right half way
-    {4.4*sinPi-1.1, -4.4*sinPi-1.1, 8.28},   // bottom right half way
-    {-8.8*sinPi-1.1, -8.8*sinPi-1.1, 5.64},  // bottom left
-    {-8.8*sinPi-1.1, 8.8*sinPi-1.1, 6.3},    // top left
-    {8.8*sinPi-1.1, 8.8*sinPi-1.1, 6.3},     // top right
-    {8.8*sinPi-1.1, -8.8*sinPi-1.1, 7.0}     // bottom right
+    {-4.4*sinPi-1.1, -4.4*sinPi-1.1, 1.79},  // bottom left half way
+    {-4.4*sinPi-1.1, 4.4*sinPi-1.1, 1.74},    // top left half way
+    {4.4*sinPi-1.1, 4.4*sinPi-1.1, 1.88},    // top right half way
+    {4.4*sinPi-1.1, -4.4*sinPi-1.1, 1.82},   // bottom right half way
+    {-8.8*sinPi-1.1, -8.8*sinPi-1.1, 2.02},  // bottom left
+    {-8.8*sinPi-1.1, 8.8*sinPi-1.1, 2.12},    // top left
+    {8.8*sinPi-1.1, 8.8*sinPi-1.1, 1.99},     // top right
+    {8.8*sinPi-1.1, -8.8*sinPi-1.1, 1.76}     // bottom right*/
+
+    {-1.1, -1.1, 2.05},   // center
+    {-10, -1.1, 2.18},     // left
+    {-1.1, 7.8, 2.15},     // top
+    {7.8, -1.1, 2.09},   // right
+    {-1.1, -10, 2.1},     // bottom
+    {-5.5, -1.1, 2.24},    // left half way
+    {3.3, -1.1, 2.44},     // right half way
+    //{-1.1, 3.3, },      // top half way
+    //{-5.5, -1.1, },     // bottom half way
+    {-4.4*sinPi-1.1, -4.4*sinPi-1.1, 2.29},  // bottom left half way
+    {-4.4*sinPi-1.1, 4.4*sinPi-1.1, 2.26},    // top left half way
+    {4.4*sinPi-1.1, 4.4*sinPi-1.1, 2.34},    // top right half way
+    {4.4*sinPi-1.1, -4.4*sinPi-1.1, 2.39},   // bottom right half way
+    {-8.8*sinPi-1.1, -8.8*sinPi-1.1, 2.46},  // bottom left
+    {-8.8*sinPi-1.1, 8.8*sinPi-1.1, 2.23},    // top left
+    {8.8*sinPi-1.1, 8.8*sinPi-1.1, 2.31},     // top right
+    {8.8*sinPi-1.1, -8.8*sinPi-1.1, 2.1}     // bottom right
   };
 
   for(const auto& point : data) {

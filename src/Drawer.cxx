@@ -21,23 +21,39 @@ Drawer::Drawer(const Drawer &drawer)
 //________________________________________________________________________________
 //  The data has to be in in the following format
 //
-//  x-values  x-errors  y-values-1  y-values-1-errors  y-values-2  y-values-2-errors...
-std::vector<TGraphErrors*> Drawer::getGraphsAnyData(std::vector<std::vector<float>> &data, const bool debug)
+//  dataType 0: x-values  x-errors  y-values-1  y-values-1-errors  y-values-2  y-values-2-errors...
+//  dataType 1: x-values  y-values-1  y-values-2  y-values-1-errors  y-values-2-errors...
+std::vector<TGraphErrors*> Drawer::getGraphsAnyData(std::vector<std::vector<float>> &data, const int dataType, const bool debug)
 {
   std::vector<TGraphErrors*> retVec;
 
-  size_t nGraphs = (data.size()-2)/2;
+  size_t nGraphs = 0;
+  if (dataType == 0) {
+    nGraphs = (data.size()-2)/2;   // dataType 0
+  } else if (dataType == 1) {
+    nGraphs = (data.size()-1)/2;   // dataType 1
+  }
+
   for (size_t i=0; i<nGraphs; i++) {
     retVec.emplace_back(new TGraphErrors());
   }
 
   for (int i=0; i<nGraphs; i++) {
-    int k = 2*(i+1);
+    int k = 0;
+    if (dataType == 0) {
+      k = 2*(i+1);   // dataType 0
+    } else if (dataType == 1) {
+      k = i+1;   // dataType 1
+    }
     for (int j=0; j<data.at(0).size(); j++) {
       if (debug) { printf("%s%s[DEBUG][Drawer][getGraphsAnyData]%s%s Trying to access data column %i\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, k, text::RESET); }
       retVec.at(i)->SetPoint(j, data.at(0).at(j), data.at(k).at(j));
       if (debug) { printf("%s%s[DEBUG][Drawer][getGraphsAnyData]%s%s Trying to access data column %i\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, k+1, text::RESET); }
-      retVec.at(i)->SetPointError(j, data.at(1).at(j), data.at(k+1).at(j));
+      if (dataType == 0) {
+        retVec.at(i)->SetPointError(j, data.at(1).at(j), data.at(k+1).at(j));  // dataType 0
+      } else if (dataType == 1) {
+        retVec.at(i)->SetPointError(j, 0, data.at(k+nGraphs).at(j));  // dataType 1
+      }
       if (debug) { printf("%s%s[DEBUG][Drawer][getGraphsAnyData]%s%s Trying to access data column %i worked!\n%s", text::BOLD, text::CYN, text::RESET, text::CYN, k+1, text::RESET); }
     }
   }
@@ -46,6 +62,7 @@ std::vector<TGraphErrors*> Drawer::getGraphsAnyData(std::vector<std::vector<floa
 }
 
 //________________________________________________________________________________
+// obsolete
 TGraphErrors* Drawer::getSpecificGraph(std::vector<std::vector<float>> &data, const current6ch channel, const bool debug)
 {
   TGraphErrors* graph = new TGraphErrors();
@@ -189,14 +206,19 @@ TLegend* Drawer::makeLegend (std::vector<TGraphErrors*> &graphs, const std::vect
 //________________________________________________________________________________
 void Drawer::divideCanvas(TCanvas* can)
 {
+  gStyle->SetPadBorderMode(0);
   can->Divide(1,2);
-  can->cd(1)->SetBottomMargin(0);
-  can->cd(2)->SetTopMargin(0);
+  can->cd(1)->SetPad(0.005, 0.3525, 0.995, 0.995);
+  can->cd(2)->SetPad(0.005, 0.005, 0.995, 0.3475);
+  can->cd(1)->SetTopMargin(0.03);
+  can->cd(1)->SetBottomMargin(0.001);
+  can->cd(2)->SetTopMargin(0.001);
+  can->cd(2)->SetBottomMargin(0.4);
 }
 
 
 //________________________________________________________________________________
-TGraphErrors* Drawer::getRatioGraph(TGraphErrors* g1, TGraphErrors* g2)
+TGraphErrors* Drawer::getRatioGraph(TGraphErrors* g1, TGraphErrors* g2, const bool debug)
 {
   if(g1->GetN() != g2->GetN()) {
     printf("%s%s[ERROR][Drawer][getRatioGraph]%s%s Number of points of the two grpahs does not match. Cannot make ratio graph!%s\n", text::BOLD, text::RED, text::RESET, text::RED, text::RESET);
@@ -206,6 +228,10 @@ TGraphErrors* Drawer::getRatioGraph(TGraphErrors* g1, TGraphErrors* g2)
   TGraphErrors* output = new TGraphErrors();
 
   double x1, x2, y1, y2, ex1, ex2, ey1, ey2;
+
+  if (debug) {
+    printf("%s%s[DEBUG][Drawer][getRatioGraph]%s\n", text::BOLD, text::CYN, text::RESET);
+  }
 
   for (int i = 0; i < g1->GetN(); i++) {
     g1->GetPoint(i, x1, y1);
@@ -223,12 +249,100 @@ TGraphErrors* Drawer::getRatioGraph(TGraphErrors* g1, TGraphErrors* g2)
 
     double ratioEX, ratioEY, ratio = 0;
 
-    ratio = std::abs(y1/y2);
+    if (y2) {
+      ratio = std::abs(y1/y2);
+    } else if (y1 == 0 && y2 == 0) {
+      ratio = 1;
+    } else {
+      ratio = 0;
+    }
     ratioEX = std::max(ex1, ex2);
     ratioEY = std::sqrt(std::pow(ey1/y2,2) + std::pow(y1*ey2/pow(y2,2),2));
 
+    if (debug) {
+      printf("%s", text::CYN);
+      printf(fmt::format("gr1 x: {}\t gr2 x: {}\t gr1 y: {}\t gr2 y: {}\t ratio: {}\n", x1,x2,y1,y2,ratio).data());
+    }
+
     output->SetPoint(i, x1, ratio);
     output->SetPointError(i, ratioEX, ratioEY);
+  }
+
+  if (debug) {
+    printf("\n%s", text::RESET);
+  }
+
+  return output;
+}
+
+
+//________________________________________________________________________________
+TGraphErrors* Drawer::getSumGraph(std::vector<TGraphErrors*> gVec, const bool debug)
+{
+  unsigned int nPoints = gVec.at(0)->GetN();
+  for (const auto& gr : gVec) {
+    if (nPoints != gr->GetN()) {
+      printf("%s%s[ERROR][Drawer][getSumGraph]%s%s Number of points of the graphs does not match. Cannot make sum graph!%s\n", text::BOLD, text::RED, text::RESET, text::RED, text::RESET);
+      return nullptr;
+    }
+  }
+
+  TGraphErrors* output = new TGraphErrors();
+
+  double sum = 0;
+  double x = 0;
+  for (unsigned int i=0; i<nPoints; i++) {
+    for (const auto& gr : gVec) {
+      sum += gr->GetPointY(i);
+      x = gr->GetPointX(i);
+    }
+    output->SetPoint(i, x, sum);
+    sum = 0;
+    //TODO: calculate and set yErr
+  }
+
+  return output;
+}
+
+
+//________________________________________________________________________________
+TGraphErrors* Drawer::getETEGraph(TGraphErrors* g1, TGraphErrors* g2, const bool normalize, const bool debug)
+{
+  if(g1->GetN() != g2->GetN()) {
+    printf("%s%s[ERROR][Drawer][getRatioGraph]%s%s Number of points of the two graphs does not match. Cannot make ETE graph!%s\n", text::BOLD, text::RED, text::RESET, text::RED, text::RESET);
+    return nullptr;
+  }
+
+  TGraphErrors* output = new TGraphErrors();
+
+  double maxY = TMath::MaxElement(g1->GetN(),g1->GetY());
+
+  for (unsigned int i=0; i<g1->GetN(); i++) {
+    if (normalize) {
+      auto maxY2 = TMath::MinElement(g2->GetN(),g2->GetY()); // maxY2 is actually the min value since I_GB is negative
+      output->SetPoint(i, g2->GetPointX(i), g2->GetPointY(i)/maxY2); // assume that the max I_GB value is 100% ETE
+    } else {
+      output->SetPoint(i, g2->GetPointX(i), std::abs(g2->GetPointY(i)/maxY));
+    }
+    //TODO: calculate and set yErr
+  }
+
+  return output;
+}
+
+
+//________________________________________________________________________________
+TGraphErrors* Drawer::sumGraphs(TGraphErrors* g1, TGraphErrors* g2, const bool debug)
+{
+  if(g1->GetN() != g2->GetN()) {
+    printf("%s%s[ERROR][Drawer][sumGraphs]%s%s Number of points of the two graphs does not match. Cannot sum graphs!%s\n", text::BOLD, text::RED, text::RESET, text::RED, text::RESET);
+    return nullptr;
+  }
+
+  TGraphErrors* output = new TGraphErrors();
+
+  for (unsigned int i=0; i<g1->GetN(); i++) {
+    output->SetPoint(i, g1->GetPointX(i), g1->GetPointY(i) + g2->GetPointY(i));
   }
 
   return output;

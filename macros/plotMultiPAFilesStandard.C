@@ -11,7 +11,7 @@
 
 extern char* optarg;
 
-void plotPAFile6chReadout(const TString inputFiles)
+void plotMultiPAFilesStandard(const TString inputFiles, const bool debug)
 {
   auto files = fileHandling::getFileNames(inputFiles);
   printf("\n%sFiles to be processed: %lu%s\n", text::BOLD, files.size(), text::RESET);
@@ -73,10 +73,11 @@ int main(int argc, char** argv)
 {
 
   char inputFiles[512] = "";
-  char outputFile[512] = "readPAFile_output";
+  //char outputFile[512] = "readPAFile_output";
+  bool debug           = false;
 
   int argsforloop;
-  while ((argsforloop = getopt(argc, argv, "hi:o:")) != -1) {
+  while ((argsforloop = getopt(argc, argv, "hi:o:d:")) != -1) {
     switch (argsforloop) {
       case '?':
         ///TODO: write usage function
@@ -85,17 +86,22 @@ int main(int argc, char** argv)
         strncpy(inputFiles, optarg, 512);
         break;
       /*case 'o':
-        strncpy(output, optarg, 512);
+        strncpy(outputFile, optarg, 512);
         break;*/
+      case 'd':
+        if (std::atoi(optarg) > 0) { debug = true; }
+        else if (std::atoi(optarg) == 0) { debug = false; }
+        else { printf("Valid debug options: '1', '0' (default)"); }
+        break;
       default:
         printf("\n\n%s%sdefault case%s\n\n",text::BOLD,text::RED,text::RESET);
         exit(EXIT_FAILURE);
     }
   }
 
-  printf("\n\n%sRunning plotPAFile6chReadout%s\n\n",text::BOLD,text::RESET);
+  printf("\n\n%sRunning plotMultiPAFilesStandard%s\n\n",text::BOLD,text::RESET);
   
-  plotPAFile6chReadout(inputFiles);
+  plotMultiPAFilesStandard(inputFiles, debug);
 
   printf("\n\n%s%sDONE!%s\n\n",text::BOLD,text::GRN,text::RESET);
 }
