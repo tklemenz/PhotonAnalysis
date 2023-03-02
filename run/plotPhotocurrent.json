@@ -1,0 +1,110 @@
+{
+  "x_axis_title": "E_{drift} (V/cm)",
+  "y_axis_title": "I (nA)",
+  "legend_title": "",
+  "marker_style": "20",
+  "make_legend": "0",
+  "make_ratio": {
+    "active": "false",
+    "numerator": "I_GB", "": "use 'name' here",
+    "denominator": "I_GT",
+    "color": "600",      "": "Check https://root.cern.ch/doc/master/classTColor.html",
+    "y_axis_title": "R_{GB/GT}"
+  },
+  "make_sum": {
+    "active": "false",
+    "color": "600"
+  },
+  "make_ETE": {
+    "active": "false",
+    "normalize": "false",
+    "color": "600"
+  },
+  "graphs": [
+    {
+      "I_suck": {
+        "active": "false",
+        "column": "0",
+        "name": "I_suck",
+        "color": "602",
+        "title": "aperture",
+        "fileNr": "1",
+        "sum": "false",
+        "ete": "false"
+      }
+    },
+    {
+      "I_stop": {
+        "active": "false",
+        "column": "1",
+        "name": "I_stop",
+        "color": "633",
+        "title": "mesh",
+        "fileNr": "1",
+        "sum": "false",
+        "ete": "false"
+      }
+    },
+    {
+      "I_wires": {
+        "active": "false",
+        "column": "2",
+        "name": "I_wires",
+        "color": "922",
+        "title": "wires",
+        "fileNr": "1",
+        "sum": "true",
+        "ete": "false"
+      }
+    },
+    {
+      "I_GT": {
+        "active": "true",
+        "column": "3",
+        "name": "I_GT",
+        "color_": "401",
+        "color": "602",
+        "title": "DLC",
+        "fileNr": "1",
+        "sum": "true",
+        "ete": "true"
+      }
+    },
+    {
+      "I_GB": {
+        "active": "false",
+        "column": "4",
+        "name": "I_GB",
+        "color": "433",
+        "title": "GB",
+        "fileNr": "1",
+        "sum": "true",
+        "ete": "true"
+      }
+    },
+    {
+      "I_anode": {
+        "active": "false",
+        "column": "5",
+        "name": "I_anode",
+        "color": "417",
+        "title": "anode",
+        "fileNr": "1",
+        "sum": "false",
+        "ete": "false"
+      }
+    },
+    {
+      "I_GT_other_file": {
+        "active": "false",
+        "column": "1",
+        "name": "I_GT_other_file",
+        "color": "402",
+        "title": "GT_{other file}",
+        "fileNr": "2",
+        "sum": "false",
+        "ete": "false"
+      }
+    }
+  ]
+}

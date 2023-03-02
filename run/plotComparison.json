@@ -1,0 +1,104 @@
+{
+  "x_axis_title": "E_{drift} (V/cm)",
+  "y_axis_title": "photo current (nA)",
+  "legend_title": "",
+  "marker_style": "20",
+  "marker_size": "2.5",
+  "make_legend": "1",
+  "make_ratio": {
+    "active": "false",
+    "numerator": "I_GB", "": "use 'name' here",
+    "denominator": "I_GT",
+    "color": "600",      "": "Check https://root.cern.ch/doc/master/classTColor.html",
+    "y_axis_title": "R_{GB/GT}"
+  },
+  "make_sum": {
+    "active": "false",
+    "color": "600"
+  },
+  "make_ETE": {
+    "active": "false",
+    "normalize": "false",
+    "color": "600"
+  },
+  "graphs": [
+    {
+      "Au": {
+        "active": "true",
+        "column": "4",
+        "name": "I_GB",
+        "color": "401",
+        "title": "Au",
+        "markerStyle": "20",
+        "fileNr": "1",
+        "sum": "true",
+        "ete": "true"
+      }
+    },
+    {
+      "DLC_3": {
+        "active": "true",
+        "column": "0",
+        "name": "I_suck",
+        "color": "839",
+        "title": "TUM DLC 3 #mug/cm^{2}",
+        "markerStyle": "33",
+        "fileNr": "1",
+        "sum": "false",
+        "ete": "false"
+      }
+    },
+    {
+      "DLC_4": {
+        "active": "true",
+        "column": "1",
+        "name": "I_stop",
+        "color": "834",
+        "title": "TUM DLC 4 #mug/cm^{2}",
+        "markerStyle": "33",
+        "fileNr": "1",
+        "sum": "false",
+        "ete": "false"
+      }
+    },
+    {
+      "DLC_8": {
+        "active": "true",
+        "column": "2",
+        "name": "I_wires",
+        "color": "869",
+        "title": "TUM DLC 8 #mug/cm^{2}",
+        "markerStyle": "33",
+        "fileNr": "1",
+        "sum": "true",
+        "ete": "false"
+      }
+    },
+    {
+      "Chinese DLC": {
+        "active": "true",
+        "column": "3",
+        "name": "I_GT",
+        "color": "419",
+        "title": "DLC THGEM",
+        "markerStyle": "47",
+        "fileNr": "1",
+        "sum": "true",
+        "ete": "true"
+      }
+    },
+    {
+      "Diode": {
+        "active": "true",
+        "column": "5",
+        "name": "I_anode",
+        "color": "602",
+        "title": "Photo diode",
+        "markerStyle": "20",
+        "fileNr": "1",
+        "sum": "false",
+        "ete": "false"
+      }
+    }
+  ]
+}
